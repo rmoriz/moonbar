@@ -146,11 +146,14 @@ class AppDelegate: NSObject, NSApplicationDelegate {
     @objc private func rightClickAction() {
         // Right-click: show context menu
         print("🖱️ Right-click detected - showing menu")
-        guard let statusBarItem = statusBarItem else { return }
+        guard let statusBarItem = statusBarItem,
+              let button = statusBarItem.button else { return }
         
         let menu = createSimpleMenu()
-        statusBarItem.menu = menu
-        statusBarItem.button?.performClick(nil)
+        
+        // Show menu at button location
+        let buttonFrame = button.frame
+        menu.popUp(positioning: nil, at: NSPoint(x: 0, y: buttonFrame.height), in: button)
     }
     
     @objc private func refreshBalance() {
