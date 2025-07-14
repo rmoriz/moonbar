@@ -42,19 +42,20 @@ class AppDelegate: NSObject, NSApplicationDelegate {
             button.target = self
             button.action = #selector(statusBarButtonClicked)
             
-            // Enable right-click for context menu
+            // Enable both left and right mouse events
             button.sendAction(on: [.leftMouseUp, .rightMouseUp])
         }
         
-        // Set up context menu
-        setupContextMenu()
+        // Create and assign the context menu directly
+        let menu = createContextMenu()
+        statusBarItem.menu = menu
         
         print("✅ Status bar item created with context menu")
     }
     
     // MARK: - Context Menu Setup
     
-    private func setupContextMenu() {
+    private func createContextMenu() -> NSMenu {
         let menu = NSMenu()
         
         // Balance info (will be updated dynamically)
@@ -81,14 +82,19 @@ class AppDelegate: NSObject, NSApplicationDelegate {
         quitItem.target = self
         menu.addItem(quitItem)
         
-        statusBarItem?.menu = menu
+        return menu
     }
     
     private func updateBalanceInMenu(_ balanceText: String) {
-        guard let menu = statusBarItem?.menu,
-              let balanceItem = menu.item(withTag: 100) else { return }
+        // This method is no longer needed since we create the menu dynamically
+    }
+    
+    private func updateBalanceInContextMenu(_ menu: NSMenu) {
+        guard let balanceItem = menu.item(withTag: 100) else { return }
         
-        balanceItem.title = "Balance: \(balanceText)"
+        // Get current balance from the status bar button
+        let currentBalance = statusBarItem?.button?.title ?? "Loading..."
+        balanceItem.title = "Balance: \(currentBalance)"
     }
     
     // MARK: - Balance Management
@@ -140,15 +146,10 @@ class AppDelegate: NSObject, NSApplicationDelegate {
     // MARK: - Event Handlers
     
     @objc private func statusBarButtonClicked(_ sender: NSStatusBarButton) {
-        guard let event = NSApp.currentEvent else { return }
-        
-        if event.type == .rightMouseUp {
-            // Right-click: show context menu
-            statusBarItem?.menu?.popUp(positioning: nil, at: NSPoint(x: 0, y: 0), in: sender)
-        } else {
-            // Left-click: cycle balance types
-            balanceManager?.switchBalanceType()
-        }
+        // For left-click, cycle balance types
+        // Right-click will automatically show the menu (handled by macOS)
+        print("🖱️ Status bar button clicked")
+        balanceManager?.switchBalanceType()
     }
     
     @objc private func refreshBalance() {
@@ -208,7 +209,6 @@ extension AppDelegate: BalanceManagerDelegate {
     func balanceManager(_ manager: BalanceManager, didUpdateBalance balance: String) {
         DispatchQueue.main.async { [weak self] in
             self?.statusBarItem?.button?.title = balance
-            self?.updateBalanceInMenu(balance)
         }
     }
     
@@ -216,7 +216,6 @@ extension AppDelegate: BalanceManagerDelegate {
         DispatchQueue.main.async { [weak self] in
             let errorDisplay = "Moonshot: ❌"
             self?.statusBarItem?.button?.title = errorDisplay
-            self?.updateBalanceInMenu("Error - \(error.localizedDescription ?? "Unknown error")")
             print("❌ Balance error: \(error)")
         }
     }
