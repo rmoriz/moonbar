@@ -41,9 +41,54 @@ class AppDelegate: NSObject, NSApplicationDelegate {
             button.title = "💡 Loading..."
             button.target = self
             button.action = #selector(statusBarButtonClicked)
+            
+            // Enable right-click for context menu
+            button.sendAction(on: [.leftMouseUp, .rightMouseUp])
         }
         
-        print("✅ Status bar item created")
+        // Set up context menu
+        setupContextMenu()
+        
+        print("✅ Status bar item created with context menu")
+    }
+    
+    // MARK: - Context Menu Setup
+    
+    private func setupContextMenu() {
+        let menu = NSMenu()
+        
+        // Balance info (will be updated dynamically)
+        let balanceItem = NSMenuItem(title: "Balance: Loading...", action: nil, keyEquivalent: "")
+        balanceItem.tag = 100 // Tag for easy identification
+        menu.addItem(balanceItem)
+        
+        menu.addItem(NSMenuItem.separator())
+        
+        // Refresh action
+        let refreshItem = NSMenuItem(title: "Refresh Now", action: #selector(refreshBalance), keyEquivalent: "r")
+        refreshItem.target = self
+        menu.addItem(refreshItem)
+        
+        // About info
+        let aboutItem = NSMenuItem(title: "About Moonbar", action: #selector(showAbout), keyEquivalent: "")
+        aboutItem.target = self
+        menu.addItem(aboutItem)
+        
+        menu.addItem(NSMenuItem.separator())
+        
+        // Quit option
+        let quitItem = NSMenuItem(title: "Quit Moonbar", action: #selector(quitApp), keyEquivalent: "q")
+        quitItem.target = self
+        menu.addItem(quitItem)
+        
+        statusBarItem?.menu = menu
+    }
+    
+    private func updateBalanceInMenu(_ balanceText: String) {
+        guard let menu = statusBarItem?.menu,
+              let balanceItem = menu.item(withTag: 100) else { return }
+        
+        balanceItem.title = "Balance: \(balanceText)"
     }
     
     // MARK: - Balance Management
@@ -94,8 +139,43 @@ class AppDelegate: NSObject, NSApplicationDelegate {
     
     // MARK: - Event Handlers
     
-    @objc private func statusBarButtonClicked() {
-        balanceManager?.switchBalanceType()
+    @objc private func statusBarButtonClicked(_ sender: NSStatusBarButton) {
+        guard let event = NSApp.currentEvent else { return }
+        
+        if event.type == .rightMouseUp {
+            // Right-click: show context menu
+            statusBarItem?.menu?.popUp(positioning: nil, at: NSPoint(x: 0, y: 0), in: sender)
+        } else {
+            // Left-click: cycle balance types
+            balanceManager?.switchBalanceType()
+        }
+    }
+    
+    @objc private func refreshBalance() {
+        print("🔄 Manual refresh requested")
+        balanceManager?.updateBalance()
+    }
+    
+    @objc private func showAbout() {
+        let alert = NSAlert()
+        alert.messageText = "Moonbar"
+        alert.informativeText = """
+        A lightweight macOS menu bar app for monitoring AI provider API balances.
+        
+        Version: 1.0
+        Copyright © 2025 Moriz GmbH
+        
+        Currently monitoring: Moonshot.ai
+        """
+        alert.alertStyle = .informational
+        alert.addButton(withTitle: "OK")
+        alert.runModal()
+    }
+    
+    @objc private func quitApp() {
+        print("👋 Quitting Moonbar...")
+        cleanupResources()
+        NSApplication.shared.terminate(nil)
     }
     
     @objc private func screenDidLock() {
@@ -128,6 +208,7 @@ extension AppDelegate: BalanceManagerDelegate {
     func balanceManager(_ manager: BalanceManager, didUpdateBalance balance: String) {
         DispatchQueue.main.async { [weak self] in
             self?.statusBarItem?.button?.title = balance
+            self?.updateBalanceInMenu(balance)
         }
     }
     
@@ -135,6 +216,7 @@ extension AppDelegate: BalanceManagerDelegate {
         DispatchQueue.main.async { [weak self] in
             let errorDisplay = "Moonshot: ❌"
             self?.statusBarItem?.button?.title = errorDisplay
+            self?.updateBalanceInMenu("Error - \(error.localizedDescription ?? "Unknown error")")
             print("❌ Balance error: \(error)")
         }
     }
