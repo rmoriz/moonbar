@@ -36,17 +36,19 @@ class AppDelegate: NSObject, NSApplicationDelegate {
             return
         }
         
-        // Configure button for left-click only
+        // Configure button
         if let button = statusBarItem.button {
             button.title = "💡 Loading..."
             button.target = self
             button.action = #selector(statusBarButtonClicked)
+            
+            // Add right-click gesture recognizer for menu
+            let rightClickGesture = NSClickGestureRecognizer(target: self, action: #selector(rightClickAction))
+            rightClickGesture.buttonMask = 0x2 // Right mouse button
+            button.addGestureRecognizer(rightClickGesture)
         }
         
-        // Create the menu - this will show on right-click automatically
-        statusBarItem.menu = createSimpleMenu()
-        
-        print("✅ Status bar item created with simple menu")
+        print("✅ Status bar item created with click handlers")
     }
     
     private func createSimpleMenu() -> NSMenu {
@@ -139,6 +141,16 @@ class AppDelegate: NSObject, NSApplicationDelegate {
         // Left-click: cycle balance types
         print("🖱️ Status bar button clicked - cycling balance")
         balanceManager?.switchBalanceType()
+    }
+    
+    @objc private func rightClickAction() {
+        // Right-click: show context menu
+        print("🖱️ Right-click detected - showing menu")
+        guard let statusBarItem = statusBarItem else { return }
+        
+        let menu = createSimpleMenu()
+        statusBarItem.menu = menu
+        statusBarItem.button?.performClick(nil)
     }
     
     @objc private func refreshBalance() {
