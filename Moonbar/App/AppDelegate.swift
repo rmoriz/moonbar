@@ -36,16 +36,14 @@ class AppDelegate: NSObject, NSApplicationDelegate {
             return
         }
         
-        // Configure button
+        // Configure button to handle both left and right clicks
         if let button = statusBarItem.button {
             button.title = "💡 Loading..."
             button.target = self
-            button.action = #selector(statusBarButtonClicked)
+            button.action = #selector(statusBarButtonClicked(_:))
             
-            // Add right-click gesture recognizer for menu
-            let rightClickGesture = NSClickGestureRecognizer(target: self, action: #selector(rightClickAction))
-            rightClickGesture.buttonMask = 0x2 // Right mouse button
-            button.addGestureRecognizer(rightClickGesture)
+            // Enable both left and right click events
+            button.sendAction(on: [.leftMouseUp, .rightMouseUp])
         }
         
         print("✅ Status bar item created with click handlers")
@@ -137,18 +135,22 @@ class AppDelegate: NSObject, NSApplicationDelegate {
     
     // MARK: - Event Handlers
     
-    @objc private func statusBarButtonClicked() {
-        // Left-click: cycle balance types
-        print("🖱️ Status bar button clicked - cycling balance")
-        balanceManager?.switchBalanceType()
+    @objc private func statusBarButtonClicked(_ sender: NSStatusBarButton) {
+        // Check which mouse button was clicked
+        let event = NSApp.currentEvent
+        
+        if event?.type == .rightMouseUp {
+            // Right-click: show context menu
+            print("🖱️ Right-click detected - showing menu")
+            showContextMenu(sender)
+        } else {
+            // Left-click: cycle balance types
+            print("🖱️ Left-click detected - cycling balance")
+            balanceManager?.switchBalanceType()
+        }
     }
     
-    @objc private func rightClickAction() {
-        // Right-click: show context menu
-        print("🖱️ Right-click detected - showing menu")
-        guard let statusBarItem = statusBarItem,
-              let button = statusBarItem.button else { return }
-        
+    private func showContextMenu(_ button: NSStatusBarButton) {
         let menu = createSimpleMenu()
         
         // Show menu at button location
