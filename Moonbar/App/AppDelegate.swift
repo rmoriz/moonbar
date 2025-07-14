@@ -36,14 +36,55 @@ class AppDelegate: NSObject, NSApplicationDelegate {
             return
         }
         
-        // Configure button
+        // Configure button for left-click only
         if let button = statusBarItem.button {
             button.title = "💡 Loading..."
             button.target = self
             button.action = #selector(statusBarButtonClicked)
         }
         
-        print("✅ Status bar item created")
+        // Create the menu - this will show on right-click automatically
+        statusBarItem.menu = createSimpleMenu()
+        
+        print("✅ Status bar item created with simple menu")
+    }
+    
+    private func createSimpleMenu() -> NSMenu {
+        let menu = NSMenu()
+        menu.autoenablesItems = false
+        
+        // Current balance (will be updated)
+        let balanceItem = NSMenuItem(title: "Balance: Loading...", action: nil, keyEquivalent: "")
+        balanceItem.isEnabled = false
+        menu.addItem(balanceItem)
+        
+        menu.addItem(NSMenuItem.separator())
+        
+        // Cycle balance types
+        let cycleItem = NSMenuItem(title: "Cycle Balance Types", action: #selector(statusBarButtonClicked), keyEquivalent: "")
+        cycleItem.target = self
+        menu.addItem(cycleItem)
+        
+        // Refresh
+        let refreshItem = NSMenuItem(title: "Refresh Now", action: #selector(refreshBalance), keyEquivalent: "r")
+        refreshItem.target = self
+        menu.addItem(refreshItem)
+        
+        menu.addItem(NSMenuItem.separator())
+        
+        // About
+        let aboutItem = NSMenuItem(title: "About Moonbar", action: #selector(showAbout), keyEquivalent: "")
+        aboutItem.target = self
+        menu.addItem(aboutItem)
+        
+        menu.addItem(NSMenuItem.separator())
+        
+        // QUIT - This is what you need!
+        let quitItem = NSMenuItem(title: "Quit Moonbar", action: #selector(quitApp), keyEquivalent: "q")
+        quitItem.target = self
+        menu.addItem(quitItem)
+        
+        return menu
     }
     
     // MARK: - Balance Management
@@ -95,7 +136,36 @@ class AppDelegate: NSObject, NSApplicationDelegate {
     // MARK: - Event Handlers
     
     @objc private func statusBarButtonClicked() {
+        // Left-click: cycle balance types
+        print("🖱️ Status bar button clicked - cycling balance")
         balanceManager?.switchBalanceType()
+    }
+    
+    @objc private func refreshBalance() {
+        print("🔄 Manual refresh requested")
+        balanceManager?.updateBalance()
+    }
+    
+    @objc private func showAbout() {
+        let alert = NSAlert()
+        alert.messageText = "Moonbar"
+        alert.informativeText = """
+        A lightweight macOS menu bar app for monitoring AI provider API balances.
+        
+        Version: 1.0
+        Copyright © 2025 Moriz GmbH
+        
+        Currently monitoring: Moonshot.ai
+        """
+        alert.alertStyle = .informational
+        alert.addButton(withTitle: "OK")
+        alert.runModal()
+    }
+    
+    @objc private func quitApp() {
+        print("👋 Quitting Moonbar...")
+        cleanupResources()
+        NSApplication.shared.terminate(nil)
     }
     
     @objc private func screenDidLock() {
