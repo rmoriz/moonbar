@@ -149,30 +149,21 @@ You can build and run Moonbar entirely from the command line:
 
 **Build the project:**
 ```bash
-xcodebuild -project Moonbar.xcodeproj -scheme Moonbar -configuration Debug build
+xcodebuild -project Moonbar.xcodeproj -target Moonbar -configuration Debug build
 ```
 
 **Build and run:**
 ```bash
 # Build the app
-xcodebuild -project Moonbar.xcodeproj -scheme Moonbar -configuration Debug build
+xcodebuild -project Moonbar.xcodeproj -target Moonbar -configuration Debug build
 
 # Run the built app
-open build/Debug/Moonbar.app
-```
-
-**Or use the derived data path:**
-```bash
-# Build
-xcodebuild -project Moonbar.xcodeproj -scheme Moonbar -configuration Debug build
-
-# Find and run the app from DerivedData
 open ~/Library/Developer/Xcode/DerivedData/Moonbar-*/Build/Products/Debug/Moonbar.app
 ```
 
 **Build for Release:**
 ```bash
-xcodebuild -project Moonbar.xcodeproj -scheme Moonbar -configuration Release build
+xcodebuild -project Moonbar.xcodeproj -target Moonbar -configuration Release build
 ```
 
 📖 **For comprehensive build instructions and troubleshooting, see [Build and Run Guide](docs/setup/BUILD_AND_RUN.md)**

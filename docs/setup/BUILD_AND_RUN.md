@@ -26,7 +26,7 @@ git clone https://github.com/rmoriz/moonbar.git
 cd moonbar
 
 # Build and run
-xcodebuild -project Moonbar.xcodeproj -scheme Moonbar -configuration Debug build
+xcodebuild -project Moonbar.xcodeproj -target Moonbar -configuration Debug build
 open ~/Library/Developer/Xcode/DerivedData/Moonbar-*/Build/Products/Debug/Moonbar.app
 ```
 
@@ -56,13 +56,13 @@ open Moonbar.xcodeproj
 
 #### Basic Build
 ```bash
-xcodebuild -project Moonbar.xcodeproj -scheme Moonbar -configuration Debug build
+xcodebuild -project Moonbar.xcodeproj -target Moonbar -configuration Debug build
 ```
 
 #### Build and Run
 ```bash
 # Build the project
-xcodebuild -project Moonbar.xcodeproj -scheme Moonbar -configuration Debug build
+xcodebuild -project Moonbar.xcodeproj -target Moonbar -configuration Debug build
 
 # Run the built application
 open ~/Library/Developer/Xcode/DerivedData/Moonbar-*/Build/Products/Debug/Moonbar.app
@@ -70,16 +70,16 @@ open ~/Library/Developer/Xcode/DerivedData/Moonbar-*/Build/Products/Debug/Moonba
 
 #### Build for Release
 ```bash
-xcodebuild -project Moonbar.xcodeproj -scheme Moonbar -configuration Release build
+xcodebuild -project Moonbar.xcodeproj -target Moonbar -configuration Release build
 ```
 
 #### Clean Build
 ```bash
 # Clean previous builds
-xcodebuild -project Moonbar.xcodeproj -scheme Moonbar clean
+xcodebuild -project Moonbar.xcodeproj -target Moonbar clean
 
 # Build fresh
-xcodebuild -project Moonbar.xcodeproj -scheme Moonbar -configuration Debug build
+xcodebuild -project Moonbar.xcodeproj -target Moonbar -configuration Debug build
 ```
 
 ### Method 3: Automated Build Script
@@ -96,11 +96,11 @@ echo "🔨 Building Moonbar..."
 
 # Clean previous builds
 echo "🧹 Cleaning previous builds..."
-xcodebuild -project Moonbar.xcodeproj -scheme Moonbar clean
+xcodebuild -project Moonbar.xcodeproj -target Moonbar clean
 
 # Build the project
 echo "🏗️ Building project..."
-xcodebuild -project Moonbar.xcodeproj -scheme Moonbar -configuration Debug build
+xcodebuild -project Moonbar.xcodeproj -target Moonbar -configuration Debug build
 
 # Find the built app
 APP_PATH=$(find ~/Library/Developer/Xcode/DerivedData/Moonbar-*/Build/Products/Debug -name "Moonbar.app" -type d | head -1)
@@ -132,7 +132,7 @@ chmod +x build.sh
 
 ### Debug Build (Default)
 ```bash
-xcodebuild -project Moonbar.xcodeproj -scheme Moonbar -configuration Debug build
+xcodebuild -project Moonbar.xcodeproj -target Moonbar -configuration Debug build
 ```
 
 **Features:**
@@ -143,7 +143,7 @@ xcodebuild -project Moonbar.xcodeproj -scheme Moonbar -configuration Debug build
 
 ### Release Build
 ```bash
-xcodebuild -project Moonbar.xcodeproj -scheme Moonbar -configuration Release build
+xcodebuild -project Moonbar.xcodeproj -target Moonbar -configuration Release build
 ```
 
 **Features:**
@@ -158,7 +158,7 @@ xcodebuild -project Moonbar.xcodeproj -scheme Moonbar -configuration Release bui
 ```bash
 # Build to specific directory
 xcodebuild -project Moonbar.xcodeproj \
-           -scheme Moonbar \
+           -target Moonbar \
            -configuration Debug \
            -derivedDataPath ./build \
            build
@@ -171,7 +171,7 @@ open ./build/Build/Products/Debug/Moonbar.app
 ```bash
 # Use specific macOS SDK
 xcodebuild -project Moonbar.xcodeproj \
-           -scheme Moonbar \
+           -target Moonbar \
            -sdk macosx \
            -configuration Debug \
            build
@@ -181,7 +181,7 @@ xcodebuild -project Moonbar.xcodeproj \
 ```bash
 # See detailed build information
 xcodebuild -project Moonbar.xcodeproj \
-           -scheme Moonbar \
+           -target Moonbar \
            -configuration Debug \
            -verbose \
            build
@@ -233,24 +233,24 @@ APP_PATH=$(find ~/Library/Developer/Xcode/DerivedData/Moonbar-*/Build/Products/D
 
 ### Build Fails
 
-**"No scheme named 'Moonbar'"**
+**"No target named 'Moonbar'"**
 ```bash
-# List available schemes
+# List available targets and schemes
 xcodebuild -project Moonbar.xcodeproj -list
 ```
 
 **"Build input file cannot be found"**
 ```bash
 # Clean and rebuild
-xcodebuild -project Moonbar.xcodeproj -scheme Moonbar clean
-xcodebuild -project Moonbar.xcodeproj -scheme Moonbar build
+xcodebuild -project Moonbar.xcodeproj -target Moonbar clean
+xcodebuild -project Moonbar.xcodeproj -target Moonbar build
 ```
 
 **Signing issues:**
 ```bash
 # Build with ad-hoc signing
 xcodebuild -project Moonbar.xcodeproj \
-           -scheme Moonbar \
+           -target Moonbar \
            CODE_SIGN_IDENTITY="-" \
            build
 ```
@@ -280,10 +280,10 @@ APP_PATH=$(find ~/Library/Developer/Xcode/DerivedData/Moonbar-*/Build/Products/D
 **Check build configuration:**
 ```bash
 # Ensure you're using Debug for development
-xcodebuild -project Moonbar.xcodeproj -scheme Moonbar -configuration Debug build
+xcodebuild -project Moonbar.xcodeproj -target Moonbar -configuration Debug build
 
 # Use Release for production
-xcodebuild -project Moonbar.xcodeproj -scheme Moonbar -configuration Release build
+xcodebuild -project Moonbar.xcodeproj -target Moonbar -configuration Release build
 ```
 
 ## Continuous Integration
@@ -302,7 +302,7 @@ jobs:
     - name: Build
       run: |
         xcodebuild -project Moonbar.xcodeproj \
-                   -scheme Moonbar \
+                   -target Moonbar \
                    -configuration Release \
                    build
 ```
@@ -317,15 +317,15 @@ set -e
 echo "🔄 Running CI build..."
 
 # Clean
-xcodebuild -project Moonbar.xcodeproj -scheme Moonbar clean
+xcodebuild -project Moonbar.xcodeproj -target Moonbar clean
 
 # Build Debug
 echo "🔨 Building Debug..."
-xcodebuild -project Moonbar.xcodeproj -scheme Moonbar -configuration Debug build
+xcodebuild -project Moonbar.xcodeproj -target Moonbar -configuration Debug build
 
 # Build Release  
 echo "🔨 Building Release..."
-xcodebuild -project Moonbar.xcodeproj -scheme Moonbar -configuration Release build
+xcodebuild -project Moonbar.xcodeproj -target Moonbar -configuration Release build
 
 echo "✅ All builds successful!"
 ```
@@ -335,7 +335,7 @@ echo "✅ All builds successful!"
 ### Create App Bundle
 ```bash
 # Build for release
-xcodebuild -project Moonbar.xcodeproj -scheme Moonbar -configuration Release build
+xcodebuild -project Moonbar.xcodeproj -target Moonbar -configuration Release build
 
 # Find the app
 APP_PATH=$(find ~/Library/Developer/Xcode/DerivedData/Moonbar-*/Build/Products/Release -name "Moonbar.app" -type d | head -1)
@@ -348,7 +348,7 @@ cp -R "$APP_PATH" /Applications/
 ```bash
 # Create archive
 xcodebuild -project Moonbar.xcodeproj \
-           -scheme Moonbar \
+           -target Moonbar \
            -configuration Release \
            archive \
            -archivePath ./Moonbar.xcarchive
