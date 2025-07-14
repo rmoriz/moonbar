@@ -57,19 +57,41 @@ A lightweight, native macOS menu bar application that displays your API balance 
 
 ## Configuration
 
-### Environment Variables
+### API Key Setup
 
-Set your API key in your shell configuration file (`~/.zshrc`, `~/.bash_profile`, etc.):
+Moonbar supports multiple ways to configure your API key:
 
+#### Option 1: Shell Configuration Files (Recommended)
+Add your API key to your shell configuration file:
+
+**For Zsh users (`~/.zshrc`):**
 ```bash
 export MOONSHOT_API_KEY="sk-your-moonshot-api-key"
 ```
 
-Then launch Xcode from the terminal to inherit the environment:
+**For Bash users (`~/.bash_profile` or `~/.bashrc`):**
+```bash
+export MOONSHOT_API_KEY="sk-your-moonshot-api-key"
+```
+
+The app automatically reads from these files when launched from Xcode or Finder, so no additional setup is required.
+
+#### Option 2: Environment Variables
+If you prefer to use environment variables directly:
 
 ```bash
-open -a Xcode
+export MOONSHOT_API_KEY="sk-your-moonshot-api-key"
+open -a Xcode  # Launch Xcode from terminal to inherit environment
 ```
+
+#### Automatic Fallback
+Moonbar uses a smart fallback system:
+1. **First**: Checks environment variables
+2. **Fallback**: Reads from shell config files (`~/.zshrc`, `~/.bash_profile`, `~/.bashrc`, `~/.profile`)
+
+This ensures the app works regardless of how it's launched (Xcode, Finder, or terminal).
+
+📖 **For detailed configuration instructions, see [API Key Configuration Guide](docs/setup/API_KEY_CONFIGURATION.md)**
 
 ## Usage
 
@@ -116,10 +138,44 @@ Moonbar/
 
 ### Building
 
-1. Ensure you have the required environment variables set
+#### Option 1: Using Xcode (GUI)
+1. Ensure you have your API key configured (see Configuration section above)
 2. Open `Moonbar.xcodeproj` in Xcode
 3. Select the Moonbar scheme
 4. Build and run (⌘R)
+
+#### Option 2: Command Line Build
+You can build and run Moonbar entirely from the command line:
+
+**Build the project:**
+```bash
+xcodebuild -project Moonbar.xcodeproj -scheme Moonbar -configuration Debug build
+```
+
+**Build and run:**
+```bash
+# Build the app
+xcodebuild -project Moonbar.xcodeproj -scheme Moonbar -configuration Debug build
+
+# Run the built app
+open build/Debug/Moonbar.app
+```
+
+**Or use the derived data path:**
+```bash
+# Build
+xcodebuild -project Moonbar.xcodeproj -scheme Moonbar -configuration Debug build
+
+# Find and run the app from DerivedData
+open ~/Library/Developer/Xcode/DerivedData/Moonbar-*/Build/Products/Debug/Moonbar.app
+```
+
+**Build for Release:**
+```bash
+xcodebuild -project Moonbar.xcodeproj -scheme Moonbar -configuration Release build
+```
+
+📖 **For comprehensive build instructions and troubleshooting, see [Build and Run Guide](docs/setup/BUILD_AND_RUN.md)**
 
 ### Testing
 
