@@ -135,7 +135,7 @@ xcodebuild test -scheme Moonbar
 
 ## Contributing
 
-We welcome contributions! Please see our [Contributing Guidelines](CONTRIBUTING.md) for details.
+We welcome contributions! Please see our [Contributing Guidelines](docs/development/CONTRIBUTING.md) for details.
 
 ### Adding New Providers
 
