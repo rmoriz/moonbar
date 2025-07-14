@@ -85,15 +85,63 @@ class BalanceManager {
     // MARK: - Private Methods
     
     private func setupDefaultAccount() {
-        // Try to get API key from environment
-        guard let apiKey = ProcessInfo.processInfo.environment["MOONSHOT_API_KEY"],
-              !apiKey.isEmpty else {
+        // Try to get API key from environment first
+        var apiKey = ProcessInfo.processInfo.environment["MOONSHOT_API_KEY"]
+        
+        // If not found in environment, try to read from shell config files
+        if apiKey?.isEmpty != false {
+            print("API key not found in environment, checking shell config files...")
+            apiKey = readApiKeyFromShellConfig()
+        }
+        
+        guard let validApiKey = apiKey, !validApiKey.isEmpty else {
+            print("ERROR: MOONSHOT_API_KEY not found in environment or shell config")
             delegate?.balanceManager(self, didEncounterError: .missingApiKey)
             return
         }
         
-        accountManager.setDefaultMoonshotAccount(apiKey: apiKey)
-        print("✅ Balance manager configured with Moonshot account")
+        accountManager.setDefaultMoonshotAccount(apiKey: validApiKey)
+        print("SUCCESS: Balance manager configured with Moonshot account")
+    }
+    
+    private func readApiKeyFromShellConfig() -> String? {
+        let homeDir = FileManager.default.homeDirectoryForCurrentUser
+        let shellConfigFiles = [
+            ".zshrc",
+            ".bash_profile", 
+            ".bashrc",
+            ".profile"
+        ]
+        
+        for configFile in shellConfigFiles {
+            let configPath = homeDir.appendingPathComponent(configFile)
+            
+            guard let content = try? String(contentsOf: configPath, encoding: .utf8) else {
+                continue
+            }
+            
+            // Look for export MOONSHOT_API_KEY="..." patterns
+            let patterns = [
+                #"export\s+MOONSHOT_API_KEY\s*=\s*["\']([^"\']+)["\']"#,  // With quotes
+                #"export\s+MOONSHOT_API_KEY\s*=\s*([^\s#]+)"#              // Without quotes
+            ]
+            
+            for pattern in patterns {
+                if let regex = try? NSRegularExpression(pattern: pattern, options: []),
+                   let match = regex.firstMatch(in: content, options: [], range: NSRange(content.startIndex..., in: content)) {
+                    
+                    let captureRange = match.range(at: 1)
+                    if let range = Range(captureRange, in: content) {
+                        let apiKey = String(content[range])
+                        print("SUCCESS: Found MOONSHOT_API_KEY in \(configFile)")
+                        return apiKey
+                    }
+                }
+            }
+        }
+        
+        print("WARNING: MOONSHOT_API_KEY not found in any shell config file")
+        return nil
     }
     
     private func updateDisplayString() {
