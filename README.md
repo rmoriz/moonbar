@@ -2,6 +2,8 @@
 
 A lightweight, native macOS menu bar application that displays your API balance from AI providers like Moonshot.ai directly in the macOS menu bar.
 
+![Moonbar Screenshot](docs/moonbar.webp)
+
 ![macOS](https://img.shields.io/badge/macOS-12.0+-blue)
 ![Swift](https://img.shields.io/badge/Swift-5.7+-orange)
 ![License](https://img.shields.io/badge/License-MIT-green)
