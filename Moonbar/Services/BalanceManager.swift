@@ -86,10 +86,10 @@ class BalanceManager {
     
     private func setupDefaultAccount() {
         // Try to get API key from environment
-        // TEMPORARY: Mock API key for testing (will show network error)
-        let apiKey = ProcessInfo.processInfo.environment["MOONSHOT_API_KEY"] ?? "sk-mock-key-for-testing"
-        if apiKey == "sk-mock-key-for-testing" {
-            print("⚠️ Using mock API key - will show network error (expected)")
+        guard let apiKey = ProcessInfo.processInfo.environment["MOONSHOT_API_KEY"],
+              !apiKey.isEmpty else {
+            delegate?.balanceManager(self, didEncounterError: .missingApiKey)
+            return
         }
         
         accountManager.setDefaultMoonshotAccount(apiKey: apiKey)
